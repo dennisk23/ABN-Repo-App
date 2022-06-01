@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">ABN Repositories</string>
-    <string name="data_load_fail">Failed to receive repositories</string>
+    <string name="data_load_fail">Failed to load repositories</string>
+    <string name="data_offline">Currently offline, refresh to reconnect</string>
 
     <string name="activity_repository_title">Repository</string>
 

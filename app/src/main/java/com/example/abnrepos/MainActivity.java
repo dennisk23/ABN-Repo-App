@@ -4,16 +4,23 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.abnrepos.adapter.RepositoryAdapter;
 import com.example.abnrepos.api.GitHubAPI;
 import com.example.abnrepos.api.RetroClient;
 import com.example.abnrepos.data.Repository;
+import com.example.abnrepos.database.AppDatabase;
+import com.example.abnrepos.database.RepositoryDao;
 
 import java.util.List;
 
@@ -29,11 +36,13 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private static final int PER_PAGE = 10;
     private static final int THRESHOLD_LOAD_MORE = 3; // When to start loading more items
 
+    private TextView textOffline;
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recyclerView;
     private LinearLayoutManager linearLayoutManager;
     private RepositoryAdapter repositoryAdapter;
     private GitHubAPI gitHubAPI;
+    private RepositoryDao repositoryDao;
 
     private int curPage = 0;
     private boolean loadMore = true;
@@ -43,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        textOffline = findViewById(R.id.main_offline);
         swipeRefreshLayout = findViewById(R.id.main_refresher);
         swipeRefreshLayout.setOnRefreshListener(this);
         recyclerView = findViewById(R.id.main_recyclerview);
@@ -53,6 +63,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         recyclerView.addOnScrollListener(scrollDownListener);
 
         //if(repositoryAdapter == null) repositoryAdapter = new RepositoryAdapter();
+        AppDatabase db = Room.databaseBuilder(getApplicationContext(),
+                AppDatabase.class, AppDatabase.DATABASE_NAME).build();
+        repositoryDao = db.repositoryDao();
 
 
         if(savedInstanceState == null) {
@@ -61,7 +74,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
             gitHubAPI = RetroClient.getGitHubAPI();
 
-            refreshRepos();
+            if(hasNetworkConnection()) refreshRepos();
+            else loadCache();
         }
     }
 
@@ -79,15 +93,20 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         repoCall.enqueue(new Callback<List<Repository>>() {
             @Override
             public void onResponse(Call<List<Repository>> call, Response<List<Repository>> response) {
+                textOffline.setVisibility(View.GONE);
                 swipeRefreshLayout.setRefreshing(false);
                 if(response.isSuccessful() && response.body() != null) {
-                    Log.e("RESULT", "Page " + curPage + " loaded: " + response.body());
                     List<Repository> repoList = response.body();
 
                     if(repoList.size() == 0) loadMore = false;
 
                     if(curPage == 1) repositoryAdapter.updateList(repoList);
                     else repositoryAdapter.addToList(repoList);
+
+                    new Thread(() -> {
+                        if(curPage == 1) repositoryDao.deleteAll();
+                        repositoryDao.insertAll(repoList);
+                    }).start();
                 } else
                     onPageLoadFailed();
             }
@@ -100,9 +119,25 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         });
     }
 
+    private void loadCache() {
+        new Thread(() -> {
+            textOffline.setVisibility(View.VISIBLE);
+            loadMore = false;
+            List<Repository> repos = repositoryDao.getAll();
+            repositoryAdapter.updateList(repos);
+        }).start();
+    }
+
     private void onPageLoadFailed() {
+        textOffline.setVisibility(View.VISIBLE);
         loadMore = false;
         Toast.makeText(MainActivity.this, R.string.data_load_fail, Toast.LENGTH_LONG).show();
+    }
+
+    private boolean hasNetworkConnection() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return (activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting());
     }
 
     @Override

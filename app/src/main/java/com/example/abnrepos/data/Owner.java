@@ -9,6 +9,10 @@ public class Owner implements Parcelable {
     @SerializedName("avatar_url")
     private String avatarUrl;
 
+    public Owner(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
     public String getAvatarUrl() {
         return avatarUrl;
     }

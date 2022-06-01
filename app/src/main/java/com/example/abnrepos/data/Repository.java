@@ -7,28 +7,53 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Embedded;
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
 
 import com.example.abnrepos.R;
 import com.example.abnrepos.RepositoryActivity;
 import com.google.gson.annotations.SerializedName;
 
+@Entity
 public class Repository implements Parcelable {
 
-    private String name, visibility, description;
+    @PrimaryKey
+    private long id;
+    private String name, description, visibility;
     @SerializedName("full_name")
     private String fullName;
     @SerializedName("html_url")
     private String htmlUrl;
     @SerializedName("private")
     private boolean isPrivate;
+
+    //private long ownerId;
+    //@Ignore
+    @Embedded(prefix = "owner_")
     private Owner owner;
 
+    public Repository(long id, String name, String fullName, String description, String visibility, String htmlUrl, boolean isPrivate, Owner owner) {
+        this.id = id;
+        this.name = name;
+        this.fullName = fullName;
+        this.description = description;
+        this.visibility = visibility;
+        this.htmlUrl = htmlUrl;
+        this.isPrivate = isPrivate;
+        this.owner = owner;
+        //this.ownerId = ownerId;
+    }
+    public long getId() { return id; }
     public String getName() { return name; }
     public String getFullName() { return fullName; }
     public String getDescription() { return description; }
     public String getVisibility() { return visibility; }
     public boolean isPrivate() { return isPrivate; }
     public String getHtmlUrl() { return htmlUrl; }
+//    public long getOwnerId() { return ownerId; }
     public Owner getOwner() { return owner; }
 
     public String getPrivate(Context context) {
