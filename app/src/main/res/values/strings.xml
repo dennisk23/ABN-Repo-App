@@ -2,6 +2,8 @@
     <string name="app_name">ABN Repositories</string>
     <string name="data_load_fail">Failed to receive repositories</string>
 
+    <string name="activity_repository_title">Repository</string>
+
     <string name="description_repo_avatar">Repository\'s Avatar</string>
 
     <string name="placeholder_repo_name">Repo</string>
