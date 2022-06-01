@@ -7,7 +7,11 @@ import com.google.gson.annotations.SerializedName;
 
 public class Owner implements Parcelable {
     @SerializedName("avatar_url")
-    public String avatarUrl;
+    private String avatarUrl;
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
 
     @Override
     public int describeContents() {
