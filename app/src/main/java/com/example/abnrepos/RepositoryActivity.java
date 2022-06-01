@@ -6,11 +6,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.abnrepos.data.Repository;
+import com.squareup.picasso.Picasso;
 
 public class RepositoryActivity extends AppCompatActivity {
 
@@ -36,7 +38,10 @@ public class RepositoryActivity extends AppCompatActivity {
         openUrl = findViewById(R.id.repo_open);
 
         repo = getIntent().getParcelableExtra(INTENT_EXTRA_REPO);
-        if(repo != null) updateViews();
+        if(repo != null) {
+            updateViews();
+            openUrl.setOnClickListener(v -> repo.openInBrowser(RepositoryActivity.this));
+        }
     }
 
     public void updateViews() {
@@ -45,6 +50,7 @@ public class RepositoryActivity extends AppCompatActivity {
         description.setText(repo.getDescription());
         visibility.setText(getString(R.string.list_repo_visibility, repo.getVisibility())); // TODO: Change or change list_repo_visibility name
         isPrivate.setText(getString(R.string.list_repo_private, repo.getPrivate(this))); // TODO: Change or change list_repo_private name
+        Picasso.with(this).load(repo.getOwner().getAvatarUrl()).into(avatar);
     }
 
     public static void start(Context context, Repository repo) {

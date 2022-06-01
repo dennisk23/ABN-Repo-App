@@ -1,6 +1,8 @@
 package com.example.abnrepos.data;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -36,6 +38,12 @@ public class Repository implements Parcelable {
 
     public void openDetailsActivity(Context context) {
         RepositoryActivity.start(context, this);
+    }
+
+    public void openInBrowser(Context context) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(htmlUrl));
+        context.startActivity(intent);
     }
 
     @Override
