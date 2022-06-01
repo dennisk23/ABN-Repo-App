@@ -9,8 +9,8 @@
 
     <ImageView
         android:id="@+id/repo_avatar"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
         android:layout_gravity="center"
         android:contentDescription="@string/description_repo_avatar"/>
 
@@ -18,41 +18,80 @@
         android:id="@+id/repo_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Title"
-        android:text="@string/placeholder_repo_name"/>
+        android:textSize="25sp"
+        android:text="@string/placeholder_repo_name"
+        android:padding="10dp"/>
 
-    <TextView
-        android:id="@+id/repo_full_name"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.AppCompat.Title"
-        android:text="@string/placeholder_repo_full_name"/>
+        android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/repo_description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        android:text="@string/placeholder_repo_description"/>
+        <ScrollView
+            android:layout_alignParentTop="true"
+            android:layout_above="@id/repo_bottom_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/repo_full_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:text="@string/placeholder_repo_full_name"
+                    android:paddingVertical="5dp"/>
 
-    <TextView
-        android:id="@+id/repo_visibility"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        android:text="@string/placeholder_repo_visibility"/>
+                <TextView
+                    android:id="@+id/repo_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:text="@string/placeholder_repo_description"/>
 
-    <TextView
-        android:id="@+id/repo_private"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        android:text="@string/placeholder_repo_private"/>
 
-    <Button
-        android:id="@+id/repo_open"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/button_open_repo"/>
+            </LinearLayout>
+        </ScrollView>
+
+        <LinearLayout
+            android:id="@+id/repo_bottom_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="5dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/repo_visibility"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:text="@string/placeholder_repo_visibility"/>
+
+                <TextView
+                    android:id="@+id/repo_private"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:text="@string/placeholder_repo_private"/>
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/repo_open"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_open_repo"/>
+        </LinearLayout>
+
+    </RelativeLayout>
+
 
 </LinearLayout>
