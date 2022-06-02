@@ -57,20 +57,19 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         swipeRefreshLayout.setOnRefreshListener(this);
         recyclerView = findViewById(R.id.main_recyclerview);
 
-        linearLayoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(linearLayoutManager);
-
         recyclerView.addOnScrollListener(scrollDownListener);
 
-        //if(repositoryAdapter == null) repositoryAdapter = new RepositoryAdapter();
         AppDatabase db = Room.databaseBuilder(getApplicationContext(),
                 AppDatabase.class, AppDatabase.DATABASE_NAME).build();
         repositoryDao = db.repositoryDao();
 
-
+        // TODO: have a proper look at this (from background to front)
         if(savedInstanceState == null) {
             repositoryAdapter = new RepositoryAdapter();
             recyclerView.setAdapter(repositoryAdapter);
+
+            linearLayoutManager = new LinearLayoutManager(this);
+            recyclerView.setLayoutManager(linearLayoutManager);
 
             gitHubAPI = RetroClient.getGitHubAPI();
 
@@ -79,12 +78,18 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }
     }
 
+    /**
+     * Reload all Repositories, starting from the first page
+     */
     private void refreshRepos() {
         curPage = 0;
         loadMore = true;
         loadNextPage();
     }
 
+    /**
+     * Load the next page of Repositories from the Github API
+     */
     private void loadNextPage() {
         swipeRefreshLayout.setRefreshing(true);
 
@@ -93,16 +98,21 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         repoCall.enqueue(new Callback<List<Repository>>() {
             @Override
             public void onResponse(Call<List<Repository>> call, Response<List<Repository>> response) {
-                textOffline.setVisibility(View.GONE);
                 swipeRefreshLayout.setRefreshing(false);
                 if(response.isSuccessful() && response.body() != null) {
+                    // TODO: maybe in new function?
+                    textOffline.setVisibility(View.GONE);
                     List<Repository> repoList = response.body();
 
+                    // When there are no more Repositories, prevent the app from trying to load more
                     if(repoList.size() == 0) loadMore = false;
 
+                    // When the first page is loaded, replace all Repositories in the list with the
+                    // loaded Repositories. Otherwise, add the loaded Repositories to the list
                     if(curPage == 1) repositoryAdapter.updateList(repoList);
                     else repositoryAdapter.addToList(repoList);
 
+                    // Store the Repositories in the cache
                     new Thread(() -> {
                         if(curPage == 1) repositoryDao.deleteAll();
                         repositoryDao.insertAll(repoList);
@@ -119,6 +129,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         });
     }
 
+    /**
+     * Load cached Repositories, prevent blocking the UI by doing it in a thread
+     */
     private void loadCache() {
         new Thread(() -> {
             textOffline.setVisibility(View.VISIBLE);
@@ -128,30 +141,45 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }).start();
     }
 
+    /**
+     * When a page fails to load, show the user the current state is offline, and prevent loading more items
+     */
     private void onPageLoadFailed() {
         textOffline.setVisibility(View.VISIBLE);
         loadMore = false;
         Toast.makeText(MainActivity.this, R.string.data_load_fail, Toast.LENGTH_LONG).show();
     }
 
+    /**
+     * Check on whether the user
+     * @return connected (true) or not (false)
+     */
     private boolean hasNetworkConnection() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return (activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting());
     }
 
+    /**
+     * When the user pulled to refresh (swipeRefreshLayout), refresh the Repositories
+     */
     @Override
     public void onRefresh() {
         refreshRepos();
     }
 
+    /**
+     * Scroll down listener for the Repository list. Loads next page when reaching the bottom of the listview
+     */
     private final RecyclerView.OnScrollListener scrollDownListener = new RecyclerView.OnScrollListener() {
         @Override
         public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
             super.onScrolled(recyclerView, dx, dy);
 
             int lastVisibleItem = linearLayoutManager.findLastCompletelyVisibleItemPosition();
-            if (loadMore && !swipeRefreshLayout.isRefreshing() && repositoryAdapter.getItemCount() <= lastVisibleItem + THRESHOLD_LOAD_MORE)
+            // If more items can be loaded, and the app is currently not refreshing,
+            // And there are less than '3' more items than the last visible item, then load more items
+            if (loadMore && !swipeRefreshLayout.isRefreshing() && repositoryAdapter.getItemCount()  <= lastVisibleItem + THRESHOLD_LOAD_MORE)
                 loadNextPage();
         }
     };

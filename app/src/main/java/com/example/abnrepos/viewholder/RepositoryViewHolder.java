@@ -1,8 +1,6 @@
 package com.example.abnrepos.viewholder;
 
 import android.content.Context;
-import android.net.Uri;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -30,7 +28,6 @@ public class RepositoryViewHolder extends RecyclerView.ViewHolder {
         name.setText(repo.getName());
         visibility.setText(context.getString(R.string.list_repo_visibility, repo.getVisibility()));
         isPrivate.setText(context.getString(R.string.list_repo_private, repo.getPrivate(context)));
-        Log.e("RESULT", "load: " + repo.getOwner().getAvatarUrl());
         Picasso.with(context).load(repo.getOwner().getAvatarUrl()).into(avatar);
     }
 }

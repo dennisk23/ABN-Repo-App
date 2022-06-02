@@ -1,7 +1,5 @@
 package com.example.abnrepos.adapter;
 
-import android.app.Activity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,12 +21,20 @@ public class RepositoryAdapter extends RecyclerView.Adapter<RepositoryViewHolder
         repos = new ArrayList<>();
     }
 
+    /**
+     * Replace current Repository items in the list with the provided Repositories
+     * @param newRepos
+     */
     public void updateList(List<Repository> newRepos) {
         repos.clear();
         repos.addAll(newRepos);
         notifyDataSetChanged();
     }
 
+    /**
+     * Adds the provided Repositories to the existing Repository items
+     * @param addRepos
+     */
     public void addToList(List<Repository> addRepos) {
         int start = repos.size();
         int end = addRepos.size();
@@ -41,6 +47,7 @@ public class RepositoryAdapter extends RecyclerView.Adapter<RepositoryViewHolder
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.list_item_repository, parent, false);
         RepositoryViewHolder viewHolder = new RepositoryViewHolder(view);
+        // Open details activity when clicking on an item
         view.setOnClickListener(clickedView -> {
             repos.get(viewHolder.getAbsoluteAdapterPosition()).openDetailsActivity(clickedView.getContext());
         });

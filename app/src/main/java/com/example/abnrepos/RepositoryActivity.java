@@ -2,11 +2,9 @@ package com.example.abnrepos;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -20,7 +18,6 @@ public class RepositoryActivity extends AppCompatActivity {
 
     private ImageView avatar;
     private TextView name, fullName, description, visibility, isPrivate;
-    private Button openUrl;
 
     private Repository repo;
 
@@ -35,7 +32,7 @@ public class RepositoryActivity extends AppCompatActivity {
         description = findViewById(R.id.repo_description);
         visibility = findViewById(R.id.repo_visibility);
         isPrivate = findViewById(R.id.repo_private);
-        openUrl = findViewById(R.id.repo_open);
+        Button openUrl = findViewById(R.id.repo_open);
 
         repo = getIntent().getParcelableExtra(INTENT_EXTRA_REPO);
         if(repo != null) {
@@ -53,6 +50,11 @@ public class RepositoryActivity extends AppCompatActivity {
         Picasso.with(this).load(repo.getOwner().getAvatarUrl()).into(avatar);
     }
 
+    /**
+     * Start a new activity with the provided Repository
+     * @param context Current context, used to start the activity
+     * @param repo The Repository for which to start the activity
+     */
     public static void start(Context context, Repository repo) {
         Intent intent = new Intent(context, RepositoryActivity.class);
         intent.putExtra(INTENT_EXTRA_REPO, repo);

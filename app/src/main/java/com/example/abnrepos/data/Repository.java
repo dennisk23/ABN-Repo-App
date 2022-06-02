@@ -22,18 +22,15 @@ public class Repository implements Parcelable {
 
     @PrimaryKey
     private long id;
-    private String name, description, visibility;
+    private final String name, description, visibility;
     @SerializedName("full_name")
-    private String fullName;
+    private final String fullName;
     @SerializedName("html_url")
-    private String htmlUrl;
+    private final String htmlUrl;
     @SerializedName("private")
-    private boolean isPrivate;
-
-    //private long ownerId;
-    //@Ignore
+    private final boolean isPrivate;
     @Embedded(prefix = "owner_")
-    private Owner owner;
+    private final Owner owner;
 
     public Repository(long id, String name, String fullName, String description, String visibility, String htmlUrl, boolean isPrivate, Owner owner) {
         this.id = id;
@@ -44,7 +41,6 @@ public class Repository implements Parcelable {
         this.htmlUrl = htmlUrl;
         this.isPrivate = isPrivate;
         this.owner = owner;
-        //this.ownerId = ownerId;
     }
     public long getId() { return id; }
     public String getName() { return name; }
@@ -53,9 +49,13 @@ public class Repository implements Parcelable {
     public String getVisibility() { return visibility; }
     public boolean isPrivate() { return isPrivate; }
     public String getHtmlUrl() { return htmlUrl; }
-//    public long getOwnerId() { return ownerId; }
     public Owner getOwner() { return owner; }
 
+    /**
+     *
+     * @param context Current context, will be used to access resources
+     * @return Textual value for the private property
+     */
     public String getPrivate(Context context) {
         if(isPrivate) return context.getString(R.string.repo_private_true);
         return context.getString(R.string.repo_private_false);
@@ -79,7 +79,7 @@ public class Repository implements Parcelable {
 
     @Override
     public int describeContents() {
-        return 0;
+        return CONTENTS_FILE_DESCRIPTOR;
     }
 
     @Override
