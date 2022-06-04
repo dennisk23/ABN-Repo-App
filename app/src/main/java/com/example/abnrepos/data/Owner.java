@@ -3,6 +3,8 @@ package com.example.abnrepos.data;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.Nullable;
+
 import com.google.gson.annotations.SerializedName;
 
 public class Owner implements Parcelable {
@@ -15,6 +17,14 @@ public class Owner implements Parcelable {
 
     public String getAvatarUrl() {
         return avatarUrl;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if(this == obj) return true;
+        if(!(obj instanceof Owner)) return false;
+        Owner other = (Owner) obj;
+        return other.getAvatarUrl().equals(getAvatarUrl());
     }
 
     @Override

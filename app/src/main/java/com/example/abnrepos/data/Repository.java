@@ -7,6 +7,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Embedded;
 import androidx.room.Entity;
@@ -78,12 +79,31 @@ public class Repository implements Parcelable {
     }
 
     @Override
+    public boolean equals(@Nullable Object obj) {
+        if(this == obj) return true;
+        if(!(obj instanceof Repository)) return false;
+
+        Repository other = (Repository) obj;
+        if(other.getId() != getId()) return false;
+        if(!other.getName().equals(getName())) return false;
+        if(!other.getFullName().equals(getFullName())) return false;
+        if(!other.getDescription().equals(getDescription())) return false;
+        if(!other.getVisibility().equals(getVisibility())) return false;
+        if(!other.getHtmlUrl().equals(getHtmlUrl())) return false;
+        if(other.isPrivate() != isPrivate()) return false;
+        if(other.getOwner() != getOwner() && (other.getOwner() == null || getOwner() == null)) return false;
+        if(other.getOwner() == getOwner()) return true;
+        return other.getOwner().equals(getOwner());
+    }
+
+    @Override
     public int describeContents() {
         return CONTENTS_FILE_DESCRIPTOR;
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(id);
         dest.writeString(name);
         dest.writeString(fullName);
         dest.writeString(description);
@@ -94,6 +114,7 @@ public class Repository implements Parcelable {
     }
 
     public Repository(Parcel in) {
+        id = in.readLong();
         name = in.readString();
         fullName = in.readString();
         description = in.readString();
