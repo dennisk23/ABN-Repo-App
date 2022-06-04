@@ -22,6 +22,7 @@ import com.example.abnrepos.data.Repository;
 import com.example.abnrepos.database.AppDatabase;
 import com.example.abnrepos.database.RepositoryDao;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -31,7 +32,8 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     // Todo Splash activity?
-
+    private static final String STATE_LINEAR_LAYOUT_MANAGER = "state_layout_manager";
+    private static final String STATE_ADAPTER_ITEMS = "state_adapter_items";
     private static final String USER = "abnamrocoesd";
     private static final int PER_PAGE = 10;
     private static final int THRESHOLD_LOAD_MORE = 3; // When to start loading more items
@@ -63,18 +65,20 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 AppDatabase.class, AppDatabase.DATABASE_NAME).build();
         repositoryDao = db.repositoryDao();
 
-        // TODO: have a proper look at this (from background to front)
+        gitHubAPI = RetroClient.getGitHubAPI();
+        linearLayoutManager = new LinearLayoutManager(this);
+        repositoryAdapter = new RepositoryAdapter();
+
+        recyclerView.setAdapter(repositoryAdapter);
+        recyclerView.setLayoutManager(linearLayoutManager);
+
+        // Load items when app opened for the first time, otherwise restore state
         if(savedInstanceState == null) {
-            repositoryAdapter = new RepositoryAdapter();
-            recyclerView.setAdapter(repositoryAdapter);
-
-            linearLayoutManager = new LinearLayoutManager(this);
-            recyclerView.setLayoutManager(linearLayoutManager);
-
-            gitHubAPI = RetroClient.getGitHubAPI();
-
             if(hasNetworkConnection()) refreshRepos();
             else loadCache();
+        } else {
+            linearLayoutManager.onRestoreInstanceState(savedInstanceState.getParcelable(STATE_LINEAR_LAYOUT_MANAGER));
+            repositoryAdapter.updateList(savedInstanceState.getParcelableArrayList(STATE_ADAPTER_ITEMS));
         }
     }
 
@@ -148,6 +152,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         textOffline.setVisibility(View.VISIBLE);
         loadMore = false;
         Toast.makeText(MainActivity.this, R.string.data_load_fail, Toast.LENGTH_LONG).show();
+        if(repositoryAdapter.getItemCount() == 0) loadCache();
     }
 
     /**
@@ -183,4 +188,11 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 loadNextPage();
         }
     };
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle state) {
+        super.onSaveInstanceState(state);
+        state.putParcelable(STATE_LINEAR_LAYOUT_MANAGER, linearLayoutManager.onSaveInstanceState());
+        state.putParcelableArrayList(STATE_ADAPTER_ITEMS, new ArrayList<>(repositoryAdapter.getList()));
+    }
 }

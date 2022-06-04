@@ -42,6 +42,10 @@ public class RepositoryAdapter extends RecyclerView.Adapter<RepositoryViewHolder
         notifyItemRangeInserted(start, end);
     }
 
+    public List<Repository> getList() {
+        return repos;
+    }
+
     @Override @NonNull
     public RepositoryViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
