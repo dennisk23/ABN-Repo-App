@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorStatusBar">#FF007777</color>
+
+    <color name="colorPrimary">#FF00AAAA</color>
+    <color name="colorPrimaryVariant">#FF005555</color>
+
+    <color name="colorAccent">#FF00BBBB</color>
+
+    <color name="list_item_selected">#FF007777</color>
+</resources>
